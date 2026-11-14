@@ -32,7 +32,7 @@ Then play the output folder on a softmodded console or an emulator.
 | Original Japanese `Default.xbe` | `2fef30cd1663c2abcf62f479143c9d87ac21b17c6ebd7f4d5b613b7b96d06512` |
 | Patched English `Default.xbe` | `daa26948209eaf69aa0cf73d501bbbf6a1db9f9fc2d2c4063065377a6e26b6af` |
 
-If your original does not match, you have a different dump or version and the patcher will refuse to run.
+The patcher does not check these (they are only for reference). Use an unmodified Japanese dump: a different version or an already patched file will give a broken `Default.xbe`.
 
 ## Known limitations
 

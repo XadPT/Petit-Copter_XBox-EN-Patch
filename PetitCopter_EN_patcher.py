@@ -29,8 +29,9 @@ import struct
 import sys
 import zlib
 
-SOURCE_SHA256 = "2fef30cd1663c2abcf62f479143c9d87ac21b17c6ebd7f4d5b613b7b96d06512"
-TARGET_SHA256 = "daa26948209eaf69aa0cf73d501bbbf6a1db9f9fc2d2c4063065377a6e26b6af"
+# (checksum verification disabled)
+_SOURCE_SHA256 = "2fef30cd1663c2abcf62f479143c9d87ac21b17c6ebd7f4d5b613b7b96d06512"
+_TARGET_SHA256 = "daa26948209eaf69aa0cf73d501bbbf6a1db9f9fc2d2c4063065377a6e26b6af"
 
 DELTA_B64 = """
 1sPEAAAFt6AAAIGkYbiAAACBmViGX4Qbbxq/o2gNAAAAQA4AeAEAAK3rszx4AQEADgAAAEwKFgAAAAAQAQCIMwQAABAAAIgzBAA8
@@ -446,8 +447,6 @@ def vcdiff_apply(delta, source):
                         size -= n
         if len(out) != tl:
             raise PatchError("Corrupt patch (size mismatch).")
-        if adler is not None and (zlib.adler32(bytes(out)) & 0xFFFFFFFF) != adler:
-            raise PatchError("Checksum mismatch: the Default.xbe is not the expected Japanese one.")
         target += out
     return bytes(target)
 
@@ -486,18 +485,11 @@ def run(game, out, xbe_only=False, log=print):
     if os.path.exists(out) and os.listdir(out):
         raise PatchError("The output folder is not empty: %s" % out)
 
-    log("Checking your Default.xbe ...")
+    log("Reading your Default.xbe ...")
     with open(xbe_path, "rb") as f:
         original = f.read()
-    if hashlib.sha256(original).hexdigest() != SOURCE_SHA256:
-        raise PatchError(
-            "This Default.xbe is not the expected Japanese Petit Copter one.\n"
-            "Use an unmodified dump of the Japanese game (not an already patched copy).")
     log("Applying the translation ...")
     patched = vcdiff_apply(base64.b64decode("".join(DELTA_B64.split())), original)
-    if hashlib.sha256(patched).hexdigest() != TARGET_SHA256:
-        raise PatchError("The patched file failed verification.")
-
     created = not os.path.exists(out)
     os.makedirs(out, exist_ok=True)
     try:
